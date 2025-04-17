@@ -3,8 +3,8 @@
 #### 🙌 Contributeur
 | Nom | Fonction | Entreprise | Profil |
 | --- | --- | --- | --- | 
-| Alexandre FOURDRAINE | Technical Specialist - Data & AI | Microsoft France | :male-office-worker:[Linkedin](https://www.linkedin.com/in/alexandre-fourdraine-5a338a29/)|
-| Etienne SIGWALD | Technical Specialist - Data & AI | Microsoft France | :male-office-worker:[Linkedin](https://www.linkedin.com/in/etienne-sigwald/)|
+| Alexandre FOURDRAINE | Technical Specialist - Data & AI | Microsoft France | 👨‍💼 [Linkedin](https://www.linkedin.com/in/alexandre-fourdraine-5a338a29/)|
+| Etienne SIGWALD | Technical Specialist - Data & AI | Microsoft France | 👨‍💼 [Linkedin](https://www.linkedin.com/in/etienne-sigwald/)|
 
         
 ## 🎯 Objectif

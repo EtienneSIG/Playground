@@ -1,11 +1,11 @@
 {
-    "COMPLETIONS_MODEL": "",
-    "OPENAI_API_BASE": "",
-    "OPENAI_API_VERSION": "",
-    "OPENAI_API_KEY": "",
-    "OPENAI_NB_TOKENS": "",
-    "COMPUTER_VISION_KEY": "",
-    "COMPUTER_VISION_ENDPOINT": "",
-    "AIPROJECT_CONNECTION_STRING": "",
-    "AGENT_ID": ""
+    "COMPLETIONS_MODEL": "gpt-4o",
+    "OPENAI_API_BASE": "https://esigdalle.openai.azure.com/",
+    "OPENAI_API_VERSION": "2023-03-15-preview",
+    "OPENAI_API_KEY": "55ac96e93c964804a9a99059334d60ea",
+    "OPENAI_NB_TOKENS": 32768,
+    "COMPUTER_VISION_KEY": "8ddee83e44f54870956369153b06722e",
+    "COMPUTER_VISION_ENDPOINT": "https://esigcomputervision.cognitiveservices.azure.com/",
+    "AIPROJECT_CONNECTION_STRING": "swedencentral.api.azureml.ms;94223c9d-15b4-460e-95d4-5f47e3634c2b;esig_demo;agenttest",
+    "AGENT_ID": "asst_OpaFK3q9YxNL9JlMxow6tyyD"
 }

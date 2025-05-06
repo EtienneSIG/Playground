@@ -267,8 +267,8 @@ def dataAgent():
 
     AIPROJECT_CONNECTION_STRING = config_details['AIPROJECT_CONNECTION_STRING']
     AGENT_ID = config_details['AGENT_ID']
-    print(AIPROJECT_CONNECTION_STRING)
-    print(AGENT_ID)
+    #print(AIPROJECT_CONNECTION_STRING)
+    #print(AGENT_ID)
 
     # Initialize Streamlit session state
     if "thread_id" not in st.session_state or "chat_history" not in st.session_state:
@@ -430,44 +430,174 @@ def offer():
 def setting():
     import streamlit as st
     import pandas as pd
-    import json
     import sys
     import os
     sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+    
+    from lib.env_config import (
+        ENV_VARS, 
+        get_env_var, 
+        update_env_vars, 
+        init_env_variables, 
+        save_to_config_file, 
+        get_all_env_vars,
+        get_var_description
+    )
 
-    with st.expander("What is it ? ", expanded=False):
+    # Titre de la page
+    st.title("⚙️ Paramètres de configuration")
+
+    with st.expander("À propos des paramètres", expanded=False):
         st.markdown(''' 
-                    This page allow you to configure the different endpoint or agent you need for all demo on this playground\n
-                    | Parameter        | Description      | 
-                    |:------------------|:------------------|   
-                    | COMPLETIONS_MODEL | Deployment name |
-                    | OPENAI_API_BASE | API base url |
-                    | OPENAI_API_VERSION | API Version |
-                    | OPENAI_API_KEY | OPENAI key to access to the model |
-                    | OPENAI_NB_TOKENS | Number of token max for prompt |
-                    | COMPUTER_VISION_KEY | Customer vision api key |
-                    | COMPUTER_VISION_ENDPOINT | url of the computer vision API |
-                    | AIPROJECT_CONNECTION_STRING | AI Agent connection string |
-                    | AGENT_ID | AI Agent ID | 
+                    Cette page vous permet de configurer les différents points de terminaison et agents nécessaires pour toutes les démos de cette application.
+                    
+                    Les paramètres sont stockés dans la session Streamlit et persisteront jusqu'à la fermeture de votre navigateur.
+                    Pour les conserver de façon permanente, utilisez le bouton "Sauvegarder dans config.json".
+                    
+                    | Paramètre | Description |
+                    |:----------|:------------|
+                    | COMPLETIONS_MODEL | Nom du modèle de déploiement |
+                    | OPENAI_API_BASE | URL de base de l'API |
+                    | OPENAI_API_VERSION | Version de l'API |
+                    | OPENAI_API_KEY | Clé d'accès pour le modèle |
+                    | OPENAI_NB_TOKENS | Nombre maximal de tokens pour les prompts |
+                    | COMPUTER_VISION_KEY | Clé d'accès pour Computer Vision |
+                    | COMPUTER_VISION_ENDPOINT | URL du service Computer Vision |
+                    | AIPROJECT_CONNECTION_STRING | Chaîne de connexion pour l'agent AI |
+                    | AGENT_ID | ID de l'agent AI |
                     ''')
 
-
-
-
-    with open("lib/config.json") as f:
-        data = json.load(f)
-
-    df_json = pd.DataFrame(list(data.items()), columns=['Parameter', 'Value'])
-    df_json_edited=st.data_editor(df_json, num_rows="dynamic")
-
-# Convert DataFrame back to JSON
-    df_json_edited = df_json_edited.set_index('Parameter').to_dict()['Value']
+    # Initialiser les variables d'environnement si nécessaire
+    init_env_variables()
     
-    ouput=json.dumps(df_json_edited, indent=4)
-    f = open("lib/config.json", "w")
-    f.write(ouput)
-    f.close()
-    #st.write(ouput)
+    # Créer un callback pour mettre à jour une variable lorsqu'elle est modifiée
+    def update_env_var(var_name):
+        def callback():
+            value = st.session_state[f"input_{var_name}"]
+            update_env_vars({var_name: value})
+        return callback
+    
+    # Section des paramètres éditables
+    st.subheader("Paramètres")
+    
+    # Option pour masquer/afficher les valeurs sensibles
+    show_sensitive = st.checkbox("Afficher les valeurs sensibles", value=False, key="show_sensitive")
+    
+    # Style pour les cartes de paramètres
+    st.markdown("""
+    <style>
+    .param-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 5px solid #4e8cff;
+    }
+    .param-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .param-description {
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Obtenir toutes les variables d'environnement actuelles
+    env_data = get_all_env_vars()
+    
+    # Grouper les paramètres par catégorie
+    param_categories = {
+        "Modèle OpenAI": ["COMPLETIONS_MODEL", "OPENAI_API_BASE", "OPENAI_API_VERSION", "OPENAI_API_KEY", "OPENAI_NB_TOKENS"],
+        "Computer Vision": ["COMPUTER_VISION_KEY", "COMPUTER_VISION_ENDPOINT"],
+        "AI Project": ["AIPROJECT_CONNECTION_STRING", "AGENT_ID"]
+    }
+    
+    # Afficher les variables par catégorie avec des composants interactifs
+    for category, params in param_categories.items():
+        st.write(f"### {category}")
+        
+        for var_name in params:
+            current_value = env_data.get(var_name, "")
+            description = get_var_description(var_name)
+            
+            # Déterminer si la valeur est sensible (contient "key", "token", "secret", "password" ou "connection")
+            is_sensitive = any(keyword in var_name.lower() for keyword in ["key", "token", "secret", "password", "connection"])
+            
+            # Créer une carte pour chaque paramètre
+            st.markdown(f'<div class="param-card">', unsafe_allow_html=True)
+            st.markdown(f'<div class="param-title">{var_name}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="param-description">{description}</div>', unsafe_allow_html=True)
+            
+            # Champ d'entrée pour la valeur
+            if is_sensitive and not show_sensitive:
+                # Pour les valeurs sensibles, utiliser un champ de type password
+                value = st.text_input(
+                    "Valeur",
+                    value=current_value,
+                    type="password",
+                    key=f"input_{var_name}",
+                    on_change=update_env_var(var_name),
+                    label_visibility="collapsed"
+                )
+            else:
+                # Pour les valeurs non sensibles ou si show_sensitive est True
+                value = st.text_input(
+                    "Valeur",
+                    value=current_value,
+                    key=f"input_{var_name}",
+                    on_change=update_env_var(var_name),
+                    label_visibility="collapsed"
+                )
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Ajouter des boutons pour les actions supplémentaires
+    st.write("### Actions")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("Sauvegarder dans config.json", key="save_config_btn"):
+            if save_to_config_file():
+                st.success("Configuration sauvegardée avec succès dans config.json")
+            else:
+                st.error("Erreur lors de la sauvegarde de la configuration")
+    
+    with col2:
+        if st.button("Réinitialiser aux valeurs par défaut", key="reset_defaults_btn"):
+            from lib.env_config import DEFAULT_VALUES
+            update_env_vars(DEFAULT_VALUES)
+            st.success("Valeurs réinitialisées aux paramètres par défaut")
+            st.rerun()
+    
+    with col3:
+        if st.button("Exporter en .env", key="export_env_btn"):
+            env_content = "\n".join([f"{key}={value}" for key, value in env_data.items()])
+            st.download_button(
+                label="Télécharger le fichier .env",
+                data=env_content,
+                file_name=".env",
+                mime="text/plain"
+            )
+    
+    # Afficher un résumé de la configuration
+    st.write("### Résumé de la configuration")
+    st.info(f"{len(env_data)} paramètres configurés. Utilisez les champs ci-dessus pour les modifier directement.")
+    
+    # Option pour afficher un tableau récapitulatif des paramètres
+    if st.checkbox("Afficher le tableau récapitulatif", value=False):
+        # Créer une version filtrée des données pour le tableau
+        display_data = []
+        for key, value in env_data.items():
+            display_value = value
+            if any(keyword in key.lower() for keyword in ["key", "token", "secret", "password", "connection"]) and not show_sensitive:
+                display_value = "••••••" + (value[-4:] if len(value) > 4 else "")
+            display_data.append({"Paramètre": key, "Valeur": display_value, "Description": get_var_description(key)})
+        
+        # Afficher le tableau
+        st.table(pd.DataFrame(display_data))
 
 page_names_to_funcs = {
     "—": intro,

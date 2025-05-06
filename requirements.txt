@@ -2,3 +2,4 @@ streamlit==1.32.0
 plotly==5.18.0
 openai
 nltk
+streamlit-pdf-viewer==0.0.2

@@ -3,6 +3,6 @@ plotly==5.18.0
 openai
 nltk
 streamlit-pdf-viewer==0.0.2
-PyPDF2
+PyPDF2==3.0.1
 PyMuPDF
 token_count 

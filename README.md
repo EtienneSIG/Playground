@@ -6,6 +6,9 @@
 | Alexandre FOURDRAINE | Technical Specialist - Data & AI | Microsoft France | 👨‍💼 [Linkedin](https://www.linkedin.com/in/alexandre-fourdraine-5a338a29/)|
 | Etienne SIGWALD | Technical Specialist - Data & AI | Microsoft France | 👨‍💼 [Linkedin](https://www.linkedin.com/in/etienne-sigwald/)|
 
+## Application in streamlit cloud
+
+https://playground-urqrutadzgbn5uyg4vmyev.streamlit.app/
         
 ## 🎯 Objectif
 
